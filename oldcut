@@ -1,0 +1,36 @@
+  def cutSetHelper(self, cut):
+    pre = []
+    cut2 = []
+    ret = []
+    tempa ={}
+    for x in cut:
+      for a in x:
+        pre.append([a, self.getDirectPredecessor(a)])
+
+    for key, value in pre:
+      for x in cut:
+        if key in x:
+          for a in x:
+            if key != a and value != []:
+              temp = []
+              tempa[a] = []
+              tempa[a].append(a)
+              for z in value:
+                tempa[a].append(z)
+              checki = []
+              checkj = []
+              doit = True
+              for i,j in tempa[a]:
+                checki.append(i)
+                checkj.append(j)
+              for i in checki:
+                if i in checkj:
+                  doit = False
+              if doit:
+                cut2.append(tempa[a])
+    for b in cut2:
+      if b not in self.cutsets:
+        self.cutsets.append(b)
+        ret.append(b)
+    return ret
+
