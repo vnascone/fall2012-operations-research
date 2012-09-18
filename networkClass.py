@@ -86,55 +86,56 @@ class networkClass(object):
     ret = [(i,j) for (i,j) in self.arcs if j == arc[0]]
     return ret
 
-  def cutSetHelper2(self, cut):
-    pre = []
-    cut2 = []
-    ret = []
-    for x in cut:
-      for a in x:
-        pre.append([a, self.getDirectPredecessor(a)])
-#    print pre
-    for x in cut:
-      for a in x:
-        for key, value in pre:
-          if key != a and value != []:
-            temp=[]
-            temp.append(a)
-            for z in value:
-              temp.append(z)
-            cut2.append(temp)
-    for b in cut2:
-      if b not in self.cutsets:
-        self.cutsets.append(b)
-        ret.append(b)
-    return ret
-
+  # Function to
   def cutSetHelper(self, cut):
     pre = {}
     ret = []
     temp = []
-    cut2 = []
-    for x in cut:
-      for a in x:
-        z = self.getDirectPredecessor(a)
-        if z!= []:
-          pre[a] = z
-    print pre 
-      
-    for x in cut:
-      for p in pre:
-        if p in x:
-          print x, pre[p]
+    cut2=[]
+    
+    # Iterate over each member of a cutset to find its direct predecessors
+    for set in cut:
+      for a in set:
+        q = self.getDirectPredecessor(a)
+        if len(q) > 0:
+          pre[a] = q
+
+    # Create a Set of possible cutsets
+    for set in cut:
+      for a in set:
+        if a in pre:
           temp = []
-          for a in x:
-            if a != p:
-              print a, pre[p]
-              
-       
+          for b in set:
+            if a != b:
+              temp.append(b)
+              for q in pre[a]:
+                if q not in temp:
+                  temp.append(q)
+          cut2.append(temp)
+
+    # Ensure only 
+    for c in cut2:
+      if c not in self.cutsets:
+        checki=[]
+        checkj=[]
+        doit = True
+        for i,j in c:
+          checki.append(i)
+          checkj.append(j)
+        for i in checki:
+          if i in checkj:
+            doit = False
+        if doit:
+          ret.append(c)
+          self.cutsets.append(c)
+    return ret
+
   def getCutSets(self):
     cut = []
     cut.append([(i,j) for (i,j) in self.arcs if j == self.nodes[-1]])
     self.cutsets = cut
-    print cut
-    print self.cutSetHelper(cut)
- 
+
+    while(cut != []):
+      cut = self.cutSetHelper(cut)
+
+    return self.cutsets

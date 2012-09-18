@@ -17,4 +17,4 @@ net.addArcs([
              [(6,7), 4]])
 net.minCost()
 net.maxCost()
-net.getCutSets()
+print net.getCutSets()
