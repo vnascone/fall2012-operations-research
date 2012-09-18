@@ -6,11 +6,12 @@
 from pulp import *
 
 class networkClass(object):
-  def __init__(self, nodes = [], arcs = [], weights = [], cutsets=[]):
+  def __init__(self, nodes = [], arcs = [], weights = [], cutsets=[], poscutsets=[]):
     self.nodes = nodes
     self.arcs = arcs
     self.weights = weights
     self.cutsets = cutsets
+    self.poscutsets = poscutsets
 
 # Function to add the nodes in the graph problem
   def addNode(self, node):
@@ -86,12 +87,19 @@ class networkClass(object):
     ret = [(i,j) for (i,j) in self.arcs if j == arc[0]]
     return ret
 
+  def getDirectPostdecessor(self, arc):
+    ret = [(i,j) for (i,j) in self.arcs if i == arc[1]]
+    return ret
+
+    
+
   # Function to
   def cutSetHelper(self, cut):
     pre = {}
     ret = []
     temp = []
     cut2=[]
+    post = {}
     
     # Iterate over each member of a cutset to find its direct predecessors
     for set in cut:
@@ -112,23 +120,9 @@ class networkClass(object):
                 if q not in temp:
                   temp.append(q)
           cut2.append(temp)
-
-    # Ensure only 
     for c in cut2:
-      if c not in self.cutsets:
-        checki=[]
-        checkj=[]
-        doit = True
-        for i,j in c:
-          checki.append(i)
-          checkj.append(j)
-        for i in checki:
-          if i in checkj:
-            doit = False
-        if doit:
-          ret.append(c)
-          self.cutsets.append(c)
-    return ret
+      self.poscutsets.append(c)  
+    return cut2
 
   def getCutSets(self):
     cut = []
@@ -137,5 +131,21 @@ class networkClass(object):
 
     while(cut != []):
       cut = self.cutSetHelper(cut)
+      print cut
 
-    return self.cutsets
+    poscut = []
+    # Remove any duplicate entries per cutset
+    for cut in self.poscutsets:
+      temp = []
+      for a in cut:
+        if a not in temp:
+          temp.append(a)
+      poscut.append(temp)
+
+    poscut2 = []
+    for cut in poscut:
+      cut.sort()
+      if cut not in poscut2:
+        poscut2.append(cut)
+    print poscut2
+
