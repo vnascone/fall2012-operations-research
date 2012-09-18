@@ -12,7 +12,6 @@ class networkClass(object):
     self.weights = weights
     self.cutsets = cutsets
     self.poscutsets = poscutsets
-
 # Function to add the nodes in the graph problem
   def addNode(self, node):
     self.nodes.append(node)
@@ -131,7 +130,6 @@ class networkClass(object):
 
     while(cut != []):
       cut = self.cutSetHelper(cut)
-      print cut
 
     poscut = []
     # Remove any duplicate entries per cutset
@@ -147,5 +145,36 @@ class networkClass(object):
       cut.sort()
       if cut not in poscut2:
         poscut2.append(cut)
-    print poscut2
 
+    for cut in poscut2:
+      checki=[]
+      checkj=[]
+      doit = True
+      for i, j in cut:
+        checki.append(i)
+        checkj.append(j)
+      for i in checki:
+        if i in checkj:
+          doit = False
+      if doit:
+        self.cutsets.append(cut)
+    return self.cutsets
+
+  def getCutSetCost(self):
+    data = dict(zip(self.arcs, self.weights))
+    ret = []
+    for set in self.getCutSets():
+      v = []
+      for a in set:
+        v.append(data[a])
+      v = sum(v)
+      ret.append([v, set])
+    return ret
+
+  def printCutSetCost(self):
+    x = self.getCutSetCost()
+    x.sort()
+    for i in x:
+      print "Cost : " + str(i[0]) + " for cutset " + str(i[1])
+
+ 
