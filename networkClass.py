@@ -76,6 +76,52 @@ class networkClass(object):
     # Finally print the optimum distance as found by the model:
     print "Total Cost = ", value(model.objective)
 
+  def optimizeNetGivenCost(self, maxormin, cost):
+
+    # Create a variable to store our method to search for weight given the arc
+    data = dict(zip(self.arcs, self.weights))
+
+    # Generate the basic model variables, since it is binary we can use min=0 and max=1
+    vars = LpVariable.dicts("arc", self.arcs, 0, 1, LpInteger)
+
+    # Create the model variable to contain our linear programming problem
+    if maxormin == 'max':
+      model = LpProblem("Network Cost Maximization", LpMaximize)
+    elif maxormin == 'min':
+      model = LpProblem("Network Cost Minimization", LpMinimize)
+
+    # Create the objective function
+    model += lpSum([vars[a] * data[a] for a in self.arcs]), "Total Cost"
+
+    # Constraints for the first node
+    model += (lpSum([vars[(i,j)] for (i,j) in self.arcs if i == self.nodes[0] ]) == 1), "Conservation for Node 1"
+
+    # Constraints for the final node
+    model += (lpSum([vars[(i,j)] for (i,j) in self.arcs if j == self.nodes[-1] ]) == 1), "Conservation for Node %s"%self.nodes[-1]
+
+    # Constraints for the remaining nodes
+    for n in self.nodes:
+      if n != self.nodes[0] and n!= self.nodes[-1]:
+        model += (lpSum([vars[(i,j)] for (i,j) in self.arcs if j == n]) == lpSum([vars[(i,j)] for (i,j) in self.arcs if i == n])), "Conservation for Node %s"%n
+
+    # Constraints accounting for unit cost at each arc
+    model += (lpSum([vars[(i,j)] for (i,j) in self.arcs]) == cost), "Constraint for Arc Unit Cost"
+
+    # Solve the problem
+    model.solve()
+
+    # Print the model status
+    print "Status:" , LpStatus[model.status]
+
+    # Print the arcs that we chose
+    for v in model.variables():
+      if v.varValue == 1.0:
+        print v.name
+
+    # Finally print the optimum distance as found by the model:
+    print "Total Cost = ", value(model.objective)
+
+
   def minCost(self):
     self.optimizeNet('min')
 
@@ -122,6 +168,7 @@ class networkClass(object):
     for c in cut2:
       self.poscutsets.append(c)  
     return cut2
+    print cut2
 
   def getCutSets(self):
     cut = []
